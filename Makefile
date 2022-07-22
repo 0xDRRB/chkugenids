@@ -1,7 +1,7 @@
 TARGET  := chkugenids
 WARN    := -Wall
 CFLAGS  := -O2 ${WARN}
-LDFLAGS := -lc
+LDFLAGS :=
 CC      := gcc
 
 C_SRCS    = $(wildcard *.c)
