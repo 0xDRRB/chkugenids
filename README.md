@@ -31,11 +31,11 @@ $ sudo chkugenids -f /dev/ugen1.00 -i
 or all informations on one line (to use with `cut` and `grep`) :
 
 ```
-$ sudo ./chkugenids -f /dev/ugen1.00 -l
+$ sudo chkugenids -f /dev/ugen1.00 -l
 1fd3:0608:ASK:LoGO::3:2:0:0:300:2
 ```
 
-Let's say we want users from group `wheel` to be able to read and write this device without `sudo`. Just add `devpubd=YES` in your `/etc/rc.conf` and create a script in `/libexec/devpubd-hooks`. Something like a `04-NFCsetperm` containing :
+Let's say we want users from group `wheel` to be able to read and write this device without `sudo` (with `nfc-list` or `nfc-poll`). Just add `devpubd=YES` in your `/etc/rc.conf` and create a script in `/libexec/devpubd-hooks`. Something like a `04-NFCsetperm` containing :
 
 ```bash
 #!/bin/sh
@@ -71,3 +71,4 @@ done
 
 When the reader device is plugged, `/dev/ugenN.EE` is created by `/libexec/devpubd-hooks/01-makedev`, then `devpubd` call `04-NFCsetperm` where `chkugenids` is used to check for VID:PID and set `g+rw` to `/dev/ugenN.*` if we have a match.
 
+`chkugenids` is available as a package in pkgsrc-wip.
