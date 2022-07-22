@@ -37,7 +37,7 @@ $ sudo ./chkugenids -f /dev/ugen1.00 -l
 
 Let's say we want users from group `wheel` to be able to read and write this device without `sudo`. Just add `devpubd=YES` in your `/etc/rc.conf` and create a script in `/libexec/devpubd-hooks`. Something like a `04-NFCsetperm` containing :
 
-```
+```bash
 #!/bin/sh
 #
 # Change permissions on /dev/ugenN.EE
