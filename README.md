@@ -1,5 +1,5 @@
 # chkugenids
-A little tool to get informations about USB devices from /dev/ugenN.EE on NetBSD.
+A little tool to get informations about USB devices from `/dev/ugenN.EE` (endpoint *EE* of device *N*) on NetBSD.
 
 The main goal of this program is to display informations about USB generic device so you can use them with `devpubd` to setup symlinks, permissions, and so on.
 
@@ -69,6 +69,56 @@ for device in $devices; do
 done
 ```
 
-When the reader device is plugged, `/dev/ugenN.EE` is created by `/libexec/devpubd-hooks/01-makedev`, then `devpubd` call `04-NFCsetperm` where `chkugenids` is used to check for VID:PID and set `g+rw` to `/dev/ugenN.*` if we have a match.
+Or even better, with a list of IDs, without `grep` :
+
+```bash
+#!/bin/sh
+#
+# Change permissions on /dev/ugenN.EE
+#
+
+event="$1"
+shift
+devices=$@
+
+# list of VIP:PID for NFC readers
+IDS="
+04cc:0531
+054c:0193
+04cc:2533
+072f:2200
+1fd3:0608
+04e6:5591
+"
+
+CHKUGENIDS=/path/to/chkugenids
+
+for device in $devices; do
+   case $device in
+   ugen*)
+      case $event in
+      device-attach)
+         echo "NFCsetperm: $device attached"
+         DEVID=`$CHKUGENIDS -f /dev/$device.00 -i -q`
+         for i in $IDS
+         do
+            if [ "$DEVID" = "$i" ]
+            then
+               logger -s "NFCsetperm: device match. Adjusting permissions for /dev/$device.*"
+               chmod g+rw /dev/$device.*
+            fi
+         done
+         ;;
+      device-detach)
+         logger -s "NFCsetperm: $device detached. Setting back permissions on /dev/$device.*"
+         chmod 600 /dev/$device.*
+         ;;
+      esac
+      ;;
+   esac
+done
+```
+
+When the reader device is plugged, `/dev/ugenN.EE` is created by `/libexec/devpubd-hooks/01-makedev`, then `devpubd` call `04-NFCsetperm` where `chkugenids` is used to check for VID:PID and set `g+rw` to `/dev/ugenN.*` if we have a match. Of course you can check for matches on anything `chkugenids` can provide (try `chkugenids -h`).
 
 `chkugenids` is available as a package in pkgsrc-wip.
