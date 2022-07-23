@@ -24,7 +24,6 @@ for device in $devices; do
 	ugen*)
 		case $event in
 		device-attach)
-			echo "NFCsetperm: $device attached"
 			DEVID=`$CHKUGENIDS -f /dev/$device.00 -i -q`
 			for i in $IDS
 			do

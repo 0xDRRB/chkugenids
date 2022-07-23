@@ -47,7 +47,7 @@ void printusage()
 	printf(" -m                print power in mA\n");
 	printf(" -u                print USB Speed (n: speed name)\n");
 	printf(" -c                print class.subclass\n");
-	printf(" -a                print all info in prettry form\n");
+	printf(" -a                print all info in pretty form\n");
 	printf(" -l                print all info in one line (VendorID:ProductID:vendor:product:serial:bus:address:class:subclass:power:speed)\n");
 	printf(" -q                be quiet and fail silently (nothing out on stderr)\n");
 	printf(" -h                show this help\n");

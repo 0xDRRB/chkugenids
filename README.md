@@ -1,7 +1,7 @@
 # chkugenids
-A little tool to get informations about USB devices from `/dev/ugenN.EE` (endpoint *EE* of device *N*) on NetBSD.
+A little tool to get information about USB devices from `/dev/ugenN.EE` (endpoint *EE* of device *N*) on NetBSD.
 
-The main goal of this program is to display informations about USB generic device so you can use them with `devpubd` to setup symlinks, permissions, and so on.
+The main goal of this program is to display information about USB generic device so you can use them with `devpubd` to setup symlinks, permissions, and so on.
 
 The *ugen* driver provides support for all USB devices that do not have a special driver, like USB NFC Readers, and when no other driver attaches to a device. `chkugenids` can be used in `devpubd` scripts to check for VID:PID, vendor name, product name, serial number... and act accordingly.
 
@@ -28,7 +28,7 @@ $ sudo chkugenids -f /dev/ugen1.00 -i
 1fd3:0608
 ```
 
-or all informations on one line (to use with `cut` and `grep`) :
+or all information on one line (to use with `cut` and `grep`) :
 
 ```
 $ sudo chkugenids -f /dev/ugen1.00 -l

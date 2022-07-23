@@ -1,0 +1,171 @@
+.TH "CHKUGENIDS" "1" "2022" "chkugenids 0.1" "User Commands"
+.SH "NAME"
+chkugenids \- get information about USB devices from ugen /dev files
+.SH "SYNOPSIS"
+.B chkugenids
+.RB \-f\ FILE
+.RB [ \-ivpsbmucalqh ]
+.SH "DESCRIPTION"
+.B chkugenids
+gets information on USB device by reading /dev/ugenN.EE (endpoint EE
+of device N) and using
+.B USB_GET_DEVICEINFO
+ioctl to display them. This program will not issue any USB transactions
+.SH "COMMAND-LINE OPTIONS"
+.TP
+\fB\-f FILE\fR
+path to ugen dev file
+.TP
+\fB\-i\fR
+print VendorID and ProductID of USB device in "VID:PID" format
+.TP
+\fB\-v\fR
+print the vendor name of USB device
+.TP
+\fB\-p\fR
+print the product name of USB device
+.TP
+\fB\-s\fR
+print serial number if available (empty string if not)
+.TP
+\fB\-b\fR
+print the device bus and address in "bus.address" format
+.TP
+\fB\-m\fR
+print power use by the device in mA
+.TP
+\fB\-u\fR
+print USB speed of the device in "n: speed name" format where
+"n" is the value as in
+.B dev/usb/usb.h
+.TP
+\fB\-c\fR
+print class and subclass of the device int "class.subclass" format
+.TP
+\fB\-a\fR
+print all information in pretty and human readable form
+.TP
+\fB\-l\fR
+print all information, colon separated, on a single line in this
+order: VendorID, ProductID, vendor name, product name, serial
+number, bus, address, class, subclass, power, speed. This is usefull
+for
+.B cut
+and
+.B grep
+.TP
+\fB\-q\fR
+be quiet and fail silently. Nothing is sent to stderr on error.
+.TP
+\fB\-h\fR
+Display a help message and exit
+.SH EXAMPLE
+The main purpose of
+.B chkugenids
+is to be used in a
+.B devpubd
+script to retrieve information about the USB device and conditionally
+apply changes to the
+.B /dev
+pseudo-file (create a symlink, change permissions, etc)
+.PP
+Here is a script that adjusts the permissions for NFC readers so
+that users in the wheel group can read and write to the device:
+.PP
+#!/bin/sh
+.br
+# Change permissions on /dev/ugenN.EE
+.PP
+event="$1"
+.br
+shift
+.br
+devices=$@
+.PP
+# list of VIP:PID for NFC readers
+.br
+IDS="
+.br
+04cc:0531
+.br
+054c:0193
+.br
+04cc:2533
+.br
+072f:2200
+.br
+1fd3:0608
+.br
+04e6:5591
+.br
+"
+.PP
+for device in $devices; do
+.br
+    case $device in
+.br
+    ugen*)
+.br
+        case $event in
+.br
+        device-attach)
+.br
+            # attach event
+.br
+            echo "NFCsetperm: $device attached"
+.br
+            # get VID:PID
+.br
+            DEVID=`chkugenids -f /dev/$device.00 -i -q`
+.br
+            # look in the list
+.br
+            for i in $IDS
+.br
+            do
+.br
+                if [ "$DEVID" = "$i" ]
+.br
+                then
+.br
+                    # Match ! Change permissions
+.br
+                    chmod g+rw /dev/$device.*
+.br
+                fi
+.br
+              done
+.br
+              ;;
+.br
+        device-detach)
+.br
+            # detach event
+.br
+            # Change permissions back
+.br
+            chmod 600 /dev/$device.*
+.br
+            ;;
+.br
+        esac
+.br
+        ;;
+.br
+      esac
+.br
+done
+.SH SEE ALSO
+.BR devpubd (8)
+.SH AUTHORS
+The
+.B chkugenids
+program was written by Denis Bodor.
+.SH COPYRIGHT
+Copyright \(co 2022 Denis Bodor
+.br
+.B chkugenids
+is covered by the the BSD 2-Clause license.
+.br
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
